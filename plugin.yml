@@ -1,0 +1,13 @@
+main: com.maximvdw.warp
+version: 1.0.0
+name: Warp
+website: http://dev.bukkit.org/bukkit-plugins/Warp/
+author: Maximvdw
+commands:
+  warp:
+    description: Teleport to a specific warp
+  setwarp:
+    description: Create a new warp
+permissions:
+  warp.*:
+    description: Allows you to use all commands and warps

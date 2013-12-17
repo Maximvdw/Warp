@@ -1,0 +1,61 @@
+## -- DATABASE -- ##
+# Warp uses a database to store the warps and cached data
+# It is recommended to use a MySQL database for caching
+tablePrefix: 'warp_'
+
+## -- RANDOM WARPS -- ##
+excluded-biomes:
+  - ocean
+  - deep_ocean
+included-biomes: []
+excluded-blocks:
+  - lava
+excluded-claims:
+  - towny
+  - worldguard
+
+## -- FEATURES -- ##
+# Enabled Warp features: towny, worldguard, economy
+# More information for each feature can be found here: 
+enabled:
+  - towny
+  - worldguard
+  - economy
+
+# Excecute commands when using the /warp command
+cmdsOnWarp: true
+# Show message when using the /warp command
+msgOnWarp: true
+
+## -- PERFORMANCE -- ##
+# RECOMMENDED: Auto cache warps (disabling this can result in lagg when using exclude/include
+# but less database usage)
+autoCache: true
+# Default cache size (Recommended for warps that include/exclude biomes)
+# Increase this number if a lot of people are using your warp
+cacheSize: 10
+# Area size to search for include/exclude biomes (decrease in small radius)
+searchSize: 16
+# Load chunks before teleporting a player (Recommended)
+loadChunks: true
+
+## -- PERMISSIONS -- ##
+# Allow operators to use all permissions
+allowOpPermissions: true
+# Deny all commands for operators (overrides allowOpPermissions)
+denyOpPermissions: false
+
+## -- UPDATES -- ##
+# Check for updates on dev.bukkit.org
+checkUpdates: true
+# Auto download and install new updates (Requires checkupdates: true)
+autoUpdate: true
+
+## -- ADVANCED -- ##
+# Enable debugging (can also be enabled ingame using /warpadmin debug)
+debug: false
+# Send information about your server to mcstats
+metrics: true
+
+## DO NOT EDIT THIS - This will delete your config.yml file!
+config: 1
