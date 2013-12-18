@@ -56,6 +56,8 @@ public class InteractListener implements Listener {
 		case STONE_PLATE: // Fall through
 		case WOOD_PLATE:
 			break;
+		case SIGN:
+			break;
 		default:
 			break;
 		}

@@ -18,6 +18,8 @@
 
 package com.maximvdw.warp;
 
+import java.util.LinkedList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,26 +41,40 @@ public class WarpPlugin extends JavaPlugin {
 	int pluginID = 0; // dev.bukkit.org Plugin ID
 	static WarpPlugin plugin = null; // Plugin instance
 	PluginManager pm = null; // Bukkit Plugin manager
+	LinkedList<Warp> warps = new LinkedList<Warp>(); // Loaded warps
 
 	@Override
 	public void onEnable() {
 		// Enable the Warp Plugin
 		plugin = this; // Save plugin instance
 		pm = Bukkit.getPluginManager();
-		
+
+		// Load Configuration
+		try {
+			SendConsole.info("Loading configuration...");
+			Configuration.loadConfig(); // Load configuration from file
+		} catch (Exception ex) {
+
+		}
+
 		// Check for updates
 		Update(false, null); // Rely on config (no force)
 
 		// Connect to database
-		MySQL db = new MySQL(this.getLogger(), Configuration.prefix,
-				Configuration.hostname, Configuration.portnmbr,
-				Configuration.database, Configuration.username,
-				Configuration.password);
-		// Check if warps table exists
-		if (!db.checkTable("warps")) {
-			SendConsole.info("Creating table 'warps'...");
-			String query = "CREATE TABLE warps (id INT AUTO_INCREMENT PRIMARY_KEY, name VARCHAR(255));";
-			db.createTable(query);
+		try {
+			SendConsole.info("Loading database...");
+			MySQL db = new MySQL(this.getLogger(), Configuration.prefix,
+					Configuration.hostname, Configuration.portnmbr,
+					Configuration.database, Configuration.username,
+					Configuration.password);
+			// Check if warps table exists
+			if (!db.checkTable("warps")) {
+				SendConsole.info("Creating table 'warps'...");
+				String query = "CREATE TABLE warps (id INT AUTO_INCREMENT PRIMARY_KEY, name VARCHAR(255));";
+				db.createTable(query);
+			}
+		} catch (Exception ex) {
+
 		}
 	}
 
@@ -68,6 +84,15 @@ public class WarpPlugin extends JavaPlugin {
 
 	}
 
+	/**
+	 * Get available warps
+	 * 
+	 * @return Warps
+	 */
+	public LinkedList<Warp> getWarps(){
+		return this.warps;
+	}
+	
 	/**
 	 * Get an instance of the plugin
 	 * 

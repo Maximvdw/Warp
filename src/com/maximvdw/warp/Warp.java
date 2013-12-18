@@ -19,6 +19,7 @@
 package com.maximvdw.warp;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 /* Bukkit Imports */
@@ -29,6 +30,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import com.maximvdw.warp.ui.SendConsole;
 import com.maximvdw.warp.ui.SendGame;
 import com.maximvdw.warp.utils.Permissions;
 
@@ -52,7 +54,8 @@ public class Warp {
 	boolean broadcastMessage = false; // Broadcast message
 	boolean cmdsOnCmd = true; // Perform commands when using /warp
 	boolean msgOnCmd = true; // Show message when using /warp
-	boolean circleRadius = false; // Min-Max radius is a circle instead of square
+	boolean circleRadius = false; // Min-Max radius is a circle instead of
+									// square
 	int minRange = -1; // Minimum radius
 	int maxRange = -1; // Maximum radius
 	int searchSize = 16; // Search size on random teleport
@@ -99,42 +102,46 @@ public class Warp {
 		this.name = name; // Save arguments
 		this.owner = owner;
 	}
-	
+
 	/**
 	 * Replace variables in a message or command
 	 * 
-	 * @param string String to replace variables
-	 * @param player Player Teleport
+	 * @param string
+	 *            String to replace variables
+	 * @param player
+	 *            Player Teleport
 	 * @return Filtered string
 	 */
-	private String replaceVariables(String string, Player player){
+	private String replaceVariables(String string, Player player) {
 		String output = string;
 		output = output.replace("<player>", player.getName());
 		output = output.replace("<playerdisplay>", player.getDisplayName());
 		return output; // Return output
 	}
-	
+
 	/**
 	 * Send the teleport message
 	 * 
-	 * @param player Player that used the teleport
+	 * @param player
+	 *            Player that used the teleport
 	 */
-	public void sendMessage(Player player){
+	public void sendMessage(Player player) {
 		// Filter message
-		message = replaceVariables(message,player);
-		if (broadcastMessage){
+		message = replaceVariables(message, player);
+		if (broadcastMessage) {
 			SendGame.toServer(message); // Broadcast message
-		}else{
+		} else {
 			SendGame.toPlayer(message, player); // Private message
 		}
 	}
-	
+
 	/**
 	 * Set the message that is display on teleport
 	 * 
-	 * @param message Message to display
+	 * @param message
+	 *            Message to display
 	 */
-	public void setMessage(String message){
+	public void setMessage(String message) {
 		this.message = message;
 	}
 
@@ -143,10 +150,10 @@ public class Warp {
 	 * 
 	 * @return Message
 	 */
-	public String getMessage(){
+	public String getMessage() {
 		return this.message;
 	}
-	
+
 	/**
 	 * Get the custom permission node
 	 * 
@@ -356,7 +363,7 @@ public class Warp {
 					}
 				});
 		// Show message
-		if ((!command || (command && this.cmdsOnCmd)) && message != ""){
+		if ((!command || (command && this.cmdsOnCmd)) && message != "") {
 			sendMessage(player); // Send message
 		}
 	}
@@ -410,6 +417,7 @@ public class Warp {
 			cachedLocations.remove(0); // Remove location
 		} else {
 			// Generate a random location
+			randomLocation = getRandomLocation();
 		}
 
 		if (randomLocation != null) {
@@ -432,8 +440,77 @@ public class Warp {
 			if (playSound) {
 				player.playSound(randomLocation, sound, 0.8F, 0.075F);
 			}
-		}else{
+		} else {
 			// An error occured while creating the warp (cache empty?)
+		}
+	}
+
+	/**
+	 * Get a random location with the warp data
+	 * 
+	 * @return Valid location to teleport to
+	 */
+	private Location getRandomLocation() {
+		// Get a random location in a square
+		Location location = null;
+		int flood = 0;
+		try {
+			do {
+				location = getRandomSquare(this.minRange, this.maxRange); // Random
+																			// Square
+				Biome biome = location.getBlock().getBiome();
+				if (this.includedBiomes.size() != 0) {
+					for (Biome b : this.includedBiomes) {
+						if (biome != b) {
+							location = null;
+						} else {
+							break;
+						}
+					}
+				} else if (this.excludedBiomes.size() != 0) {
+					for (Biome b : this.excludedBiomes) {
+						if (biome == b) {
+							location = null;
+						}
+					}
+				}
+				flood++;
+			} while (location == null && flood < 2000);
+		} catch (Exception ex) {
+			// Error
+			SendConsole.severe("Warp '" + this.name + "' was unable to generate a random warp!");
+			return null;
+		}
+
+		return location; // Return the result
+	}
+
+	/**
+	 * Get random location in a min-max square
+	 * 
+	 * @param min
+	 *            Minimum radius
+	 * @param max
+	 *            Maximum radius
+	 * @return Location with X , Z
+	 */
+	private Location getRandomSquare(int min, int max) {
+		try {
+			Random rndGen = new Random();
+			Location location = null;
+			int r = rndGen.nextInt(max - min);
+			int x = rndGen.nextInt(r) + min;
+			int z = rndGen.nextInt(r) + min;
+			if (rndGen.nextBoolean())
+				x *= -1;
+			if (rndGen.nextBoolean())
+				z *= -1;
+			x += warpLocation.getX();
+			z += warpLocation.getZ();
+			location = new Location(warpLocation.getWorld(), x, 0, z);
+			return location;
+		} catch (Exception ex) {
+			return null;
 		}
 	}
 }
