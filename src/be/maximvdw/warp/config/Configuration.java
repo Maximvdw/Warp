@@ -47,6 +47,7 @@ public class Configuration {
 	public static String username = "minecraft"; // Database username
 	public static String password = ""; // Database password
 	public static String prefix = ""; // Database Prefix
+	public static int cacheWarpSize = 10000; // Max warps loaded in cache
 
 	private static YamlConfiguration pluginConfig;
 	private static File configFile;

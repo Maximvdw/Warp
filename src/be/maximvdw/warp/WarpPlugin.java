@@ -24,8 +24,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import be.maximvdw.warp.commands.SetWarpCommand;
+import be.maximvdw.warp.commands.WarpCommand;
 import be.maximvdw.warp.config.Configuration;
-import be.maximvdw.warp.database.MySQL;
+import be.maximvdw.warp.database.WarpDatabase;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.updater.Updater;
 import be.maximvdw.warp.updater.Updater.UpdateResult;
@@ -36,12 +38,12 @@ import be.maximvdw.warp.updater.Updater.UpdateResult;
  * @author Maximvdw
  * @version 1.0.0
  */
-
 public class WarpPlugin extends JavaPlugin {
 	int pluginID = 0; // dev.bukkit.org Plugin ID
 	static WarpPlugin plugin = null; // Plugin instance
 	PluginManager pm = null; // Bukkit Plugin manager
 	LinkedList<Warp> warps = new LinkedList<Warp>(); // Loaded warps
+	LinkedList<String> warpNames = new LinkedList<String>(); // Loaded warps
 
 	@Override
 	public void onEnable() {
@@ -63,9 +65,17 @@ public class WarpPlugin extends JavaPlugin {
 		// Connect to database
 		try {
 			SendConsole.info("Loading database...");
-			
+			WarpDatabase.initDatabase();
 		} catch (Exception ex) {
 
+		}
+		
+		// Register commands
+		try{
+			getCommand("warp").setExecutor(new WarpCommand());
+			getCommand("setwarp").setExecutor(new SetWarpCommand());
+		}catch (Exception ex){
+			
 		}
 	}
 
@@ -138,5 +148,24 @@ public class WarpPlugin extends JavaPlugin {
 				ex.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Add a new warp
+	 * 
+	 * @param warp Warp to add
+	 */
+	public static void addWarp(Warp warp){
+		warp.saveWarp(); // Save warp
+	}
+	
+	/**
+	 * Get a specific warp
+	 * 
+	 * @param name Warp name
+	 * @return Warp
+	 */
+	public static Warp getWarp(String name){
+		return Warp.getWarp(name); // Get a specific warp
 	}
 }

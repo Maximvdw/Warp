@@ -101,6 +101,7 @@ public class Warp {
 	public Warp(String name, Player owner) {
 		this.name = name; // Save arguments
 		this.owner = owner;
+		this.warpLocation = owner.getLocation(); // Get location
 	}
 
 	/**
@@ -478,7 +479,8 @@ public class Warp {
 			} while (location == null && flood < 2000);
 		} catch (Exception ex) {
 			// Error
-			SendConsole.severe("Warp '" + this.name + "' was unable to generate a random warp!");
+			SendConsole.severe("Warp '" + this.name
+					+ "' was unable to generate a random warp!");
 			return null;
 		}
 
@@ -511,6 +513,33 @@ public class Warp {
 			return location;
 		} catch (Exception ex) {
 			return null;
+		}
+	}
+
+	/**
+	 * Get a specific warp
+	 * 
+	 * @param name
+	 *            Warp name
+	 * @return Warp
+	 */
+	public static Warp getWarp(String name) {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		int idx = wp.warpNames.indexOf(name);
+		if (idx != -1){
+			return wp.warps.get(idx); // Return warp
+		}
+		return null; // No warp found
+	}
+
+	/**
+	 * Save the current warp
+	 */
+	public void saveWarp() {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!(wp.warpNames.contains(this.name))) {
+			wp.warps.add(this); // Save warp
+			wp.warpNames.add(this.name.toLowerCase()); // Fast query save
 		}
 	}
 }

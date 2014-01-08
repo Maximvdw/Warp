@@ -36,6 +36,7 @@ public class SendGame {
 	 * @param message Message to send
 	 */
 	public static void toPlayer(String message, Player player){
+		message = ChatColors.getColoredMessage(message); // Color the message
 		player.sendMessage(message);
 	}
 	
@@ -45,6 +46,7 @@ public class SendGame {
 	 * @param message Message to broadcast
 	 */
 	public static void toServer(String message){
+		message = ChatColors.getColoredMessage(message); // Color the message
 		Bukkit.broadcastMessage(message);
 	}
 

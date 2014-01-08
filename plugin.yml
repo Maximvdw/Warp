@@ -1,4 +1,4 @@
-main: be.maximvdw.warp
+main: be.maximvdw.warp.WarpPlugin
 version: 0.1.0
 name: Warp
 website: http://dev.bukkit.org/bukkit-plugins/Warp/

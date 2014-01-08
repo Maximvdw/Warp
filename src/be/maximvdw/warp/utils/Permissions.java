@@ -40,7 +40,8 @@ public class Permissions {
 		Debug,
 		Update,
 		Reset,
-		HelpWarp
+		HelpWarp,
+		HelpSetWarp
 	}
 	
 	/**
@@ -123,6 +124,8 @@ public class Permissions {
 			return player.hasPermission("warp.admin.reset");
 		case HelpWarp:
 			return player.hasPermission("warp.command.teleport.help");
+		case HelpSetWarp:
+			return player.hasPermission("warp.command.setwarp.help");
 		default:
 			return true;
 		}

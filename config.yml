@@ -1,7 +1,17 @@
+## ------------------------------
+## Warp Configuration
+## Version: 1.0.0
+## Author: Maxim Van de Wynckel
+## ------------------------------
+
 ## -- DATABASE -- ##
 # Warp uses a database to store the warps and cached data
 # It is recommended to use a MySQL database for caching
 tablePrefix: 'warp_'
+hostname: localhost
+username: 'root'
+password: ''
+database: 'minecraft'
 
 ## -- RANDOM WARPS -- ##
 excluded-biomes:
