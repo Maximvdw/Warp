@@ -1,5 +1,5 @@
-main: com.maximvdw.warp
-version: 1.0.0
+main: be.maximvdw.warp
+version: 0.1.0
 name: Warp
 website: http://dev.bukkit.org/bukkit-plugins/Warp/
 author: Maximvdw

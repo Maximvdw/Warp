@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp.listeners;
+package be.maximvdw.warp.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

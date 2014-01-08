@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp;
+package be.maximvdw.warp;
 
 import java.util.LinkedList;
 
@@ -24,11 +24,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.maximvdw.warp.config.Configuration;
-import com.maximvdw.warp.database.MySQL;
-import com.maximvdw.warp.ui.SendConsole;
-import com.maximvdw.warp.updater.Updater;
-import com.maximvdw.warp.updater.Updater.UpdateResult;
+import be.maximvdw.warp.config.Configuration;
+import be.maximvdw.warp.database.MySQL;
+import be.maximvdw.warp.ui.SendConsole;
+import be.maximvdw.warp.updater.Updater;
+import be.maximvdw.warp.updater.Updater.UpdateResult;
 
 /**
  * Warp Plugin
@@ -63,16 +63,7 @@ public class WarpPlugin extends JavaPlugin {
 		// Connect to database
 		try {
 			SendConsole.info("Loading database...");
-			MySQL db = new MySQL(this.getLogger(), Configuration.prefix,
-					Configuration.hostname, Configuration.portnmbr,
-					Configuration.database, Configuration.username,
-					Configuration.password);
-			// Check if warps table exists
-			if (!db.checkTable("warps")) {
-				SendConsole.info("Creating table 'warps'...");
-				String query = "CREATE TABLE warps (id INT AUTO_INCREMENT PRIMARY_KEY, name VARCHAR(255));";
-				db.createTable(query);
-			}
+			
 		} catch (Exception ex) {
 
 		}

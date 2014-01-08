@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp.utils;
+package be.maximvdw.warp.utils;
 
 import org.bukkit.entity.Player;
 
-import com.maximvdw.warp.Warp;
+import be.maximvdw.warp.Warp;
 
 /**
  * Warp Plugin
@@ -39,7 +39,8 @@ public class Permissions {
 		ListAll,
 		Debug,
 		Update,
-		Reset
+		Reset,
+		HelpWarp
 	}
 	
 	/**
@@ -120,6 +121,8 @@ public class Permissions {
 			return player.hasPermission("warp.admin.update");
 		case Reset:
 			return player.hasPermission("warp.admin.reset");
+		case HelpWarp:
+			return player.hasPermission("warp.command.teleport.help");
 		default:
 			return true;
 		}

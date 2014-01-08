@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp.config;
+package be.maximvdw.warp.config;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.maximvdw.warp.WarpPlugin;
+import be.maximvdw.warp.WarpPlugin;
 
 /**
  * Warp Plugin

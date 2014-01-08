@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp;
+package be.maximvdw.warp;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -30,9 +30,9 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.maximvdw.warp.ui.SendConsole;
-import com.maximvdw.warp.ui.SendGame;
-import com.maximvdw.warp.utils.Permissions;
+import be.maximvdw.warp.ui.SendConsole;
+import be.maximvdw.warp.ui.SendGame;
+import be.maximvdw.warp.utils.Permissions;
 
 /**
  * Warp Plugin

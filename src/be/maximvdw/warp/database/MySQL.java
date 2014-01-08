@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp.database;
+package be.maximvdw.warp.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

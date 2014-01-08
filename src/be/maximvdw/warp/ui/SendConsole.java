@@ -16,10 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.maximvdw.warp.ui;
+package be.maximvdw.warp.ui;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 /**
  * Warp Plugin
@@ -28,24 +27,34 @@ import org.bukkit.entity.Player;
  * @version 1.0.0
  */
 
-public class SendGame {
+public class SendConsole {
+	static boolean enableLogging = false; // Enable logging
+	static String prefix = "[Warp] "; // Message prefix
 	
 	/**
-	 * Send a private message
+	 * Send an INFO message to the console
 	 * 
-	 * @param message Message to send
+	 * @param message Info message
 	 */
-	public static void toPlayer(String message, Player player){
-		player.sendMessage(message);
+	public static void info(String message){
+		Bukkit.getLogger().info(prefix + message);
 	}
 	
 	/**
-	 * Send a broadcast to the server
+	 * Send an WARNING message to the console
 	 * 
-	 * @param message Message to broadcast
+	 * @param message Warning message
 	 */
-	public static void toServer(String message){
-		Bukkit.broadcastMessage(message);
+	public static void warning(String message){
+		Bukkit.getLogger().warning(prefix + message);
 	}
-
+	
+	/**
+	 * Send an SEVERE message to the console
+	 * 
+	 * @param message Severe message
+	 */
+	public static void severe(String message){
+		Bukkit.getLogger().severe(prefix + message);
+	}
 }
