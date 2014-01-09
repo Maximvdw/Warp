@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
 import be.maximvdw.warp.WarpPlugin;
+import be.maximvdw.warp.ui.SendGame;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
 import be.maximvdw.warp.utils.Permissions.Permission;
@@ -47,6 +48,9 @@ public class WarpCommand implements CommandExecutor {
 		if (Permissions.hasPermissions(Permission.HelpWarp, sender)) {
 			SendUnknown.toSender("&b[&3Warp&b]&c /warp [<player>] <warp>",
 					sender); // Send command usage
+		} else {
+			// No permissions
+			SendUnknown.toSender("&cYou do not have permissions!", sender);
 		}
 	}
 
@@ -74,20 +78,49 @@ public class WarpCommand implements CommandExecutor {
 				if (targetPlayer != null) {
 					String name = args[0];
 					Warp warp = Warp.getWarp(name); // Get specific warp
-					warp.teleport(targetPlayer);
-					// Player not found
-					SendUnknown.toSender(
-							"&b[&3Warp&b]&a Teleported " + targetPlayer.getName() + " to warp '" + name + "'!", sender);
+					// Check if warp exists
+					if (warp != null) {
+						// Check if the player has permission
+						if (warp.hasPermission(player)) {
+							warp.teleport(targetPlayer);
+							// Player not found
+							SendUnknown.toSender("&b[&3Warp&b]&a Teleported "
+									+ targetPlayer.getName() + " to warp '"
+									+ name + "'!", sender);
+						} else {
+							// No permissions
+							SendGame.toPlayer("&cYou do not have permissions!",
+									player);
+						}
+					} else {
+						// Warp not found
+						SendUnknown.toSender("&b[&3Warp&b]&c Warp '" + name
+								+ "' does not exist! &4/warps list", sender);
+					}
 				} else {
 					// Player not found
-					SendUnknown.toSender(
-							"&b[&3Warp&b]&c Player " + playername + " was not found!", sender);
+					SendUnknown.toSender("&b[&3Warp&b]&c Player " + playername
+							+ " was not found!", sender);
 				}
 			} else {
 				// Set named warp
 				String name = args[0];
 				Warp warp = Warp.getWarp(name); // Get specific warp
-				warp.teleport(player);
+				// Check if warp exists
+				if (warp != null) {
+					// Check if the player has permission
+					if (warp.hasPermission(player)) {
+						warp.teleport(player);
+					} else {
+						// No permissions
+						SendGame.toPlayer("&cYou do not have permissions!",
+								player);
+					}
+				} else {
+					// Warp not found
+					SendUnknown.toSender("&b[&3Warp&b]&c Warp '" + name
+							+ "' does not exist! &4/warps list", sender);
+				}
 			}
 		} else {
 			// Show command usage

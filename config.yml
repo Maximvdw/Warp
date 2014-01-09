@@ -13,6 +13,10 @@ username: 'root'
 password: ''
 database: 'minecraft'
 
+## -- MESSAGES -- ##
+# Disable notification messages ("Teleported ... to warp ....")
+disableNotifications: false
+
 ## -- RANDOM WARPS -- ##
 excluded-biomes:
   - ocean

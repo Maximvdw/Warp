@@ -30,6 +30,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import be.maximvdw.warp.hooks.WarpHook;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.ui.SendGame;
 import be.maximvdw.warp.utils.Permissions;
@@ -40,7 +41,6 @@ import be.maximvdw.warp.utils.Permissions;
  * @author Maximvdw
  * @version 1.0.0
  */
-
 public class Warp {
 	String name = ""; // A unique name for the warp
 	Player owner = null; // The owner of the warp
@@ -69,6 +69,8 @@ public class Warp {
 	LinkedList<Location> cachedLocations = new LinkedList<Location>(); // Cached
 																		// random
 																		// locations
+	LinkedList<WarpHook> warpHooks = new LinkedList<WarpHook>(); // Warp plugin
+																	// hooks
 	LinkedList<String> commands = new LinkedList<String>(); // Commands
 	Object commandExecutor = null; // Default command executor
 	String message = ""; // Message to show on teleport
@@ -474,6 +476,12 @@ public class Warp {
 							location = null;
 						}
 					}
+				} else if (this.warpHooks.size() != 0) {
+					for (WarpHook hook : warpHooks) {
+						if (!hook.allowRandomWarp(location)) {
+							location = null;
+						}
+					}
 				}
 				flood++;
 			} while (location == null && flood < 2000);
@@ -526,10 +534,20 @@ public class Warp {
 	public static Warp getWarp(String name) {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		int idx = wp.warpNames.indexOf(name);
-		if (idx != -1){
+		if (idx != -1) {
 			return wp.warps.get(idx); // Return warp
 		}
 		return null; // No warp found
+	}
+
+	/**
+	 * Get a list of all warps
+	 * 
+	 * @return Warp list
+	 */
+	public static LinkedList<Warp> getWarps() {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		return wp.warps; // Return list of all warps
 	}
 
 	/**

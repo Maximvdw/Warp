@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import be.maximvdw.warp.commands.SetWarpCommand;
 import be.maximvdw.warp.commands.WarpCommand;
+import be.maximvdw.warp.commands.WarpsCommand;
 import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.database.WarpDatabase;
 import be.maximvdw.warp.ui.SendConsole;
@@ -67,15 +68,17 @@ public class WarpPlugin extends JavaPlugin {
 			SendConsole.info("Loading database...");
 			WarpDatabase.initDatabase();
 		} catch (Exception ex) {
-
+			// Unknown error
+			ex.printStackTrace();
 		}
 		
 		// Register commands
 		try{
 			getCommand("warp").setExecutor(new WarpCommand());
 			getCommand("setwarp").setExecutor(new SetWarpCommand());
+			getCommand("warps").setExecutor(new WarpsCommand());
 		}catch (Exception ex){
-			
+			// Unable to register all commands
 		}
 	}
 
