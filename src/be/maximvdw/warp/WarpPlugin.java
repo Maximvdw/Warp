@@ -18,17 +18,21 @@
 
 package be.maximvdw.warp;
 
-import java.util.LinkedList;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import be.maximvdw.warp.commands.SetRndWarpCommand;
 import be.maximvdw.warp.commands.SetWarpCommand;
 import be.maximvdw.warp.commands.WarpCommand;
 import be.maximvdw.warp.commands.WarpsCommand;
 import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.database.WarpDatabase;
+import be.maximvdw.warp.hooks.WarpHook;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.updater.Updater;
 import be.maximvdw.warp.updater.Updater.UpdateResult;
@@ -43,8 +47,9 @@ public class WarpPlugin extends JavaPlugin {
 	int pluginID = 0; // dev.bukkit.org Plugin ID
 	static WarpPlugin plugin = null; // Plugin instance
 	PluginManager pm = null; // Bukkit Plugin manager
-	LinkedList<Warp> warps = new LinkedList<Warp>(); // Loaded warps
-	LinkedList<String> warpNames = new LinkedList<String>(); // Loaded warps
+	TreeMap<String, Warp> warps = new TreeMap<String, Warp>(); // Loaded warps
+	TreeMap<Block, WarpLink> warpLinks = new TreeMap<Block, WarpLink>(); // Warp
+																			// links
 
 	@Override
 	public void onEnable() {
@@ -71,13 +76,15 @@ public class WarpPlugin extends JavaPlugin {
 			// Unknown error
 			ex.printStackTrace();
 		}
-		
+
 		// Register commands
-		try{
+		try {
+			SendConsole.info("Registrating commands...");
 			getCommand("warp").setExecutor(new WarpCommand());
 			getCommand("setwarp").setExecutor(new SetWarpCommand());
 			getCommand("warps").setExecutor(new WarpsCommand());
-		}catch (Exception ex){
+			getCommand("setrndwarp").setExecutor(new SetRndWarpCommand());
+		} catch (Exception ex) {
 			// Unable to register all commands
 		}
 	}
@@ -93,10 +100,10 @@ public class WarpPlugin extends JavaPlugin {
 	 * 
 	 * @return Warps
 	 */
-	public LinkedList<Warp> getWarps(){
+	public TreeMap<String, Warp> getWarps() {
 		return this.warps;
 	}
-	
+
 	/**
 	 * Get an instance of the plugin
 	 * 
@@ -152,23 +159,51 @@ public class WarpPlugin extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add a new warp
 	 * 
-	 * @param warp Warp to add
+	 * @param warp
+	 *            Warp to add
+	 * @throws Exception 
 	 */
-	public static void addWarp(Warp warp){
+	public void addWarp(Warp warp) throws Exception {
 		warp.saveWarp(); // Save warp
 	}
-	
+
+	/**
+	 * Delete the current warp
+	 * 
+	 * @param warp
+	 *            Warp to delete
+	 * @throws Exception 
+	 */
+	public void deleteWarp(Warp warp) throws Exception {
+		warp.deleteWarp();
+	}
+
 	/**
 	 * Get a specific warp
 	 * 
-	 * @param name Warp name
+	 * @param name
+	 *            Warp name
 	 * @return Warp
 	 */
-	public static Warp getWarp(String name){
+	public Warp getWarp(String name) {
 		return Warp.getWarp(name); // Get a specific warp
+	}
+
+	/**
+	 * Register a plugin hook
+	 * 
+	 * @param name
+	 *            Plugin name
+	 * @param plugin
+	 *            Plugin instance
+	 * @param hook
+	 *            WarpHook
+	 */
+	public void registerPlugin(String name, Plugin plugin, WarpHook hook) {
+
 	}
 }

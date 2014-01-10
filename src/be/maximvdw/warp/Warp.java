@@ -20,6 +20,7 @@ package be.maximvdw.warp;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 /* Bukkit Imports */
@@ -30,6 +31,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.hooks.WarpHook;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.ui.SendGame;
@@ -533,10 +535,25 @@ public class Warp {
 	 */
 	public static Warp getWarp(String name) {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
-		int idx = wp.warpNames.indexOf(name);
-		if (idx != -1) {
-			return wp.warps.get(idx); // Return warp
+		if (wp.warps.containsKey(name.toLowerCase())) {
+			/* Debugging Information */
+			if (Configuration.debug) {
+				SendConsole.info("action: getWarp");
+				SendConsole.info("result: Warp '" + name + "' found");
+				SendConsole.info("warpCacheSize: " + wp.warps.size());
+			}
+
+			return wp.warps.get(name.toLowerCase()); // Return warp
 		}
+
+		/* Debugging Information */
+		if (Configuration.debug) {
+			SendConsole.info("action: getWarp");
+			SendConsole.info("result: warp '" + name
+					+ "' does not exist in name cache!");
+			SendConsole.info("warpCacheSize: " + wp.warps.size());
+		}
+
 		return null; // No warp found
 	}
 
@@ -545,19 +562,60 @@ public class Warp {
 	 * 
 	 * @return Warp list
 	 */
-	public static LinkedList<Warp> getWarps() {
+	public static TreeMap<String, Warp> getWarps() {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		return wp.warps; // Return list of all warps
 	}
 
 	/**
 	 * Save the current warp
+	 * @throws Exception 
 	 */
-	public void saveWarp() {
+	public void saveWarp() throws Exception {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
-		if (!(wp.warpNames.contains(this.name))) {
-			wp.warps.add(this); // Save warp
-			wp.warpNames.add(this.name.toLowerCase()); // Fast query save
+		if (!(wp.warps.containsKey(this.name.toLowerCase()))) {
+			wp.warps.put(this.name.toLowerCase(), this);
+			// Save to database
+		} else {
+			// Error
+			throw new Exception("The given warp '" + name + "' already exist!");
 		}
+	}
+
+	/**
+	 * Delete the current warp
+	 * 
+	 * @throws Exception
+	 */
+	public void deleteWarp() throws Exception {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!(wp.warps.containsKey(this.name))) {
+			wp.warps.remove(this.name.toLowerCase()); // Delete warp
+			// Delete from database
+		} else {
+			// Warp does not exist in name cache
+
+			/* Debugging Information */
+			if (Configuration.debug) {
+				SendConsole.info("action: deleteWarp");
+				SendConsole.info("result: warp '" + this.name
+						+ "' does not exist in name cache!");
+				SendConsole.info("warpCacheSize: " + wp.warps.size());
+			}
+
+			// Error
+			throw new Exception("The given warp '" + name + "' does not exist!");
+		}
+	}
+
+	/**
+	 * Link a warp to a button
+	 * 
+	 * @param block
+	 *            Block
+	 * @throws Exception
+	 */
+	public void linkWarp(Block block) throws Exception {
+		WarpLink link = new WarpLink(this, block);
 	}
 }

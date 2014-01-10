@@ -24,7 +24,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
-import be.maximvdw.warp.ui.SendGame;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
 import be.maximvdw.warp.utils.Permissions.Permission;
@@ -35,7 +34,7 @@ import be.maximvdw.warp.utils.Permissions.Permission;
  * @author Maximvdw
  * @version 1.0.0
  */
-public class SetWarpCommand implements CommandExecutor {
+public class SetRndWarpCommand implements CommandExecutor {
 	/**
 	 * Show command usage
 	 * 
@@ -45,7 +44,7 @@ public class SetWarpCommand implements CommandExecutor {
 	public static void showUsage(Object sender) {
 		// Check if the sender has permissions
 		if (Permissions.hasPermissions(Permission.HelpSetWarp, sender)) {
-			SendUnknown.toSender("&b[&3Warp&b]&c /setwarp <warp> [<options>]",
+			SendUnknown.toSender("&b[&3Warp&b]&c /setrndwarp <warp> ([-min <value>]|[-max <value>])",
 					sender); // Send command usage
 		} else {
 			// No permissions
@@ -66,8 +65,7 @@ public class SetWarpCommand implements CommandExecutor {
 			player = (Player) sender;
 		} else {
 			// Can only be used ingame
-			SendUnknown.toSender("&cThis command can only be used ingame!",
-					sender);
+			SendUnknown.toSender("&cThis command can only be used ingame!", sender);
 			return false;
 		}
 
@@ -78,13 +76,15 @@ public class SetWarpCommand implements CommandExecutor {
 			} else {
 				// Set named warp
 				String name = args[0];
+				int minRadius = 0;
+				int maxRadius = 0;
 				Warp warp = new Warp(name, player); // Create a new warp
+				warp.setRadius(minRadius, maxRadius);
 				try {
 					warp.saveWarp();
 				} catch (Exception e) {
 					// Error while saving
 				}
-				SendGame.toPlayer("&b[&3Warp&b]&a Warp '" + name + "' created!",player);
 			}
 		} else {
 			// Show command usage

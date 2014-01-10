@@ -1,5 +1,5 @@
 main: be.maximvdw.warp.WarpPlugin
-version: 0.1.0
+version: 1.0.0
 name: Warp
 website: http://dev.bukkit.org/bukkit-plugins/Warp/
 author: Maximvdw
@@ -8,6 +8,12 @@ commands:
     description: Teleport to a specific warp
   setwarp:
     description: Create a new warp
+  warps:
+    description: Warp configuration
+  delwarp:
+    description: Delete a warp
+  setrndwarp:
+    description: Create a new random warp
 permissions:
   warp.*:
     description: Allows you to use all commands and warps

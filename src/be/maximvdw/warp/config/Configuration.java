@@ -48,7 +48,8 @@ public class Configuration {
 	public static String password = ""; // Database password
 	public static String prefix = ""; // Database Prefix
 	public static int cacheWarpSize = 10000; // Max warps loaded in cache
-
+	public static boolean debug = true; // Debug mode
+	
 	private static YamlConfiguration pluginConfig;
 	private static File configFile;
 	private static boolean loaded = false;

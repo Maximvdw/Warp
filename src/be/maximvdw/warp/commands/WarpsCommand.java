@@ -19,6 +19,7 @@
 package be.maximvdw.warp.commands;
 
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,6 +27,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
+import be.maximvdw.warp.WarpPlugin;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
 import be.maximvdw.warp.utils.Permissions.Permission;
@@ -46,7 +48,8 @@ public class WarpsCommand implements CommandExecutor {
 	public static void showUsage(Object sender) {
 		// Check if the sender has permissions
 		if (Permissions.hasPermissions(Permission.HelpSetWarp, sender)) {
-			SendUnknown.toSender("&b[&3Warp&b]&c /warps (<list>|<info>|<delwarp>|<link>)",
+			SendUnknown.toSender(
+					"&b[&3Warp&b]&c /warps (<list>|<info>|<del>|<link>)",
 					sender); // Send command usage
 		} else {
 			// No permissions
@@ -71,7 +74,7 @@ public class WarpsCommand implements CommandExecutor {
 	 *            Sender
 	 */
 	public static void showWarps(Object sender) {
-		LinkedList<Warp> warps = Warp.getWarps(); // Get a list
+		TreeMap<String, Warp> warps = Warp.getWarps(); // Get a list
 		if (Permissions.hasPermissions(Permission.List, sender)) {
 			if (warps.size() != 0) {
 				SendUnknown.toSender("&b[&3Warp&b]&c Available warps:\n",
@@ -79,13 +82,13 @@ public class WarpsCommand implements CommandExecutor {
 				int count = 0;
 				boolean listAll = Permissions.hasPermissions(
 						Permission.ListAll, sender);
-				for (Warp warp : warps) {
+				for (Warp warp : warps.values()) {
 					if (listAll) {
 						// Show warp name
-						showWarpInfo(warp,sender);
+						showWarpInfo(warp, sender);
 					} else if (Permissions.hasPermissions(warp, sender)) {
 						// Show warp name
-						showWarpInfo(warp,sender);
+						showWarpInfo(warp, sender);
 					}
 				}
 			} else {
@@ -107,6 +110,7 @@ public class WarpsCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String cmd,
 			String[] args) {
 		Player player = null;
+		WarpPlugin wp = WarpPlugin.getInstance();
 
 		// Check if it is a real player
 		if (sender instanceof Player) {
@@ -119,7 +123,33 @@ public class WarpsCommand implements CommandExecutor {
 
 		/* Check if there are enough arguments */
 		if (args.length >= 1) {
+			if (args[0].equalsIgnoreCase("list")) { // List
+				showWarps(sender);
+			} else if (args[0].equalsIgnoreCase("del")) { // Delete
+				// Check if name is defined
+				if (args.length >= 2) {
+					String name = args[1];
+					Warp warp = wp.getWarp(name); // Get the warp
+					// Check if the warp exists
+					if (warp != null) {
+						try {
+							warp.deleteWarp(); // Delete warp
+						} catch (Exception e) {
+							// Error while deleting
+						}
+						SendUnknown.toSender(
+								"&b[&3Warp&b]&e Warp '" + warp.getName()
+										+ "' has been deleted!", sender);
+					} else {
+						// Warp not found
+						SendUnknown.toSender("&b[&3Warp&b]&c Warp '" + name
+								+ "' does not exist! &4/warps list", sender);
+					}
+				} else {
+					// No name defined, show help
 
+				}
+			}
 		} else {
 			// Show command usage
 			showUsage(sender);
