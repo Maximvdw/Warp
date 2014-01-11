@@ -27,7 +27,23 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import be.maximvdw.warp.Warp;
+import be.maximvdw.warp.WarpLink;
+import be.maximvdw.warp.WarpPlugin;
+import be.maximvdw.warp.config.Configuration;
+import be.maximvdw.warp.ui.SendConsole;
+
 public class PlayerListener implements Listener {
+	WarpPlugin wp = null;
+	
+	/**
+	 * Initialize warpplugin Player listener
+	 * @param plugin Plugin
+	 */
+	public PlayerListener(WarpPlugin plugin){
+		wp = plugin;
+	}
+	
 	/**
 	 * Activates Warps when Players click a linked button
 	 * 
@@ -60,7 +76,21 @@ public class PlayerListener implements Listener {
 		case SIGN:
 			break;
 		default:
-			break;
+			return;
+		}
+
+		/* Debugging Information */
+		if (Configuration.debug) {
+			SendConsole.info("action: playerInteract");
+			SendConsole.info("result: Link has been found!");
+		}
+
+		// Get warp link
+		WarpLink link = wp.getLink(block);
+		if (link != null) {
+			// Link exists
+			Warp warp = link.getWarp();
+			warp.teleport(player); // Teleport the player
 		}
 	}
 }

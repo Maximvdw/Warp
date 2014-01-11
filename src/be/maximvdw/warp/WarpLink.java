@@ -27,7 +27,7 @@ import org.bukkit.block.Block;
  * @author Maximvdw
  * @version 1.0.0
  */
-public class WarpLink {
+public class WarpLink{
 	Block block = null; // Link location
 	Warp warp = null; // Linked warp
 
@@ -64,5 +64,21 @@ public class WarpLink {
 			throw new Exception(
 					"Warps can only be linked to buttons,levers,tripwire,pressureplates or signs");
 		}
+	}
+	
+	/**
+	 * Get the link block
+	 * @return Block
+	 */
+	public Block getBlock(){
+		return block;
+	}
+	
+	/**
+	 * Get the linked warp
+	 * @return Warp
+	 */
+	public Warp getWarp(){
+		return warp;
 	}
 }

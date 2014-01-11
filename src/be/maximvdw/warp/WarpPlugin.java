@@ -21,6 +21,7 @@ package be.maximvdw.warp;
 import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -32,7 +33,9 @@ import be.maximvdw.warp.commands.WarpCommand;
 import be.maximvdw.warp.commands.WarpsCommand;
 import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.database.WarpDatabase;
+import be.maximvdw.warp.hooks.TownyHook;
 import be.maximvdw.warp.hooks.WarpHook;
+import be.maximvdw.warp.listeners.PlayerListener;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.updater.Updater;
 import be.maximvdw.warp.updater.Updater.UpdateResult;
@@ -48,8 +51,8 @@ public class WarpPlugin extends JavaPlugin {
 	static WarpPlugin plugin = null; // Plugin instance
 	PluginManager pm = null; // Bukkit Plugin manager
 	TreeMap<String, Warp> warps = new TreeMap<String, Warp>(); // Loaded warps
-	TreeMap<Block, WarpLink> warpLinks = new TreeMap<Block, WarpLink>(); // Warp
-																			// links
+	TreeMap<Location, WarpLink> warpLinks = new TreeMap<Location, WarpLink>(); // Warp
+																				// links
 
 	@Override
 	public void onEnable() {
@@ -72,6 +75,8 @@ public class WarpPlugin extends JavaPlugin {
 		try {
 			SendConsole.info("Loading database...");
 			WarpDatabase.initDatabase();
+			
+			WarpDatabase.getWarps();
 		} catch (Exception ex) {
 			// Unknown error
 			ex.printStackTrace();
@@ -86,6 +91,35 @@ public class WarpPlugin extends JavaPlugin {
 			getCommand("setrndwarp").setExecutor(new SetRndWarpCommand());
 		} catch (Exception ex) {
 			// Unable to register all commands
+		}
+
+		// Register listeners
+		try {
+			SendConsole.info("Registrating listeners...");
+			pm.registerEvents(new PlayerListener(this), this);
+		} catch (Exception ex) {
+
+		}
+
+		// Load hooks
+		SendConsole.info("Registrating plugin hooks...");
+		try {
+			Plugin plugin = pm.getPlugin("Towny");
+			if (plugin.isEnabled()) {
+				new TownyHook(plugin); // Init hook
+				SendConsole.info("Hooked into Towny!");
+			}
+		} catch (Exception ex) {
+			// Error while hooking into towny
+		}
+		try {
+			Plugin plugin = pm.getPlugin("WorldGuard");
+			if (plugin.isEnabled()) {
+				new TownyHook(plugin); // Init hook
+				SendConsole.info("Hooked into Towny!");
+			}
+		} catch (Exception ex) {
+			// Error while hooking into towny
 		}
 	}
 
@@ -165,7 +199,7 @@ public class WarpPlugin extends JavaPlugin {
 	 * 
 	 * @param warp
 	 *            Warp to add
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void addWarp(Warp warp) throws Exception {
 		warp.saveWarp(); // Save warp
@@ -176,7 +210,7 @@ public class WarpPlugin extends JavaPlugin {
 	 * 
 	 * @param warp
 	 *            Warp to delete
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void deleteWarp(Warp warp) throws Exception {
 		warp.deleteWarp();
@@ -205,5 +239,16 @@ public class WarpPlugin extends JavaPlugin {
 	 */
 	public void registerPlugin(String name, Plugin plugin, WarpHook hook) {
 
+	}
+
+	/**
+	 * Get a Warp Link
+	 * 
+	 * @param block
+	 *            Block
+	 * @return WarpLink
+	 */
+	public WarpLink getLink(Block block) {
+		return warpLinks.get(block);
 	}
 }

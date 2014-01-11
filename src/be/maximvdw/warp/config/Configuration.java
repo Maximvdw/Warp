@@ -44,9 +44,9 @@ public class Configuration {
 	public static String hostname = "localhost"; // Database Hostname
 	public static String portnmbr = "3306"; // Database Portnumber
 	public static String database = "minecraft"; // Database name
-	public static String username = "minecraft"; // Database username
+	public static String username = "root"; // Database username
 	public static String password = ""; // Database password
-	public static String prefix = ""; // Database Prefix
+	public static String prefix = "warp_"; // Database Prefix
 	public static int cacheWarpSize = 10000; // Max warps loaded in cache
 	public static boolean debug = true; // Debug mode
 	

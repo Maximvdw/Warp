@@ -32,6 +32,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.config.Configuration;
+import be.maximvdw.warp.database.WarpDatabase;
 import be.maximvdw.warp.hooks.WarpHook;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.ui.SendGame;
@@ -62,6 +63,7 @@ public class Warp {
 	int maxRange = -1; // Maximum radius
 	int searchSize = 16; // Search size on random teleport
 	int cacheSize = 10; // Cache size
+	int dbID = 0; // Database Identifier
 	LinkedList<Biome> excludedBiomes = new LinkedList<Biome>(); // Excluded
 																// biomes
 	LinkedList<Biome> includedBiomes = new LinkedList<Biome>(); // Included
@@ -108,6 +110,33 @@ public class Warp {
 		this.warpLocation = owner.getLocation(); // Get location
 	}
 
+	/**
+	 * Create a new warp
+	 * 
+	 * @param name
+	 *            Warp name
+	 * @param owner
+	 *            Warp owner
+	 * @param location Warp Location
+	 * @param id
+	 *            Database ID
+	 */
+	public Warp(String name, Player owner, Location location, int id) {
+		this.name = name; // Save arguments
+		this.owner = owner;
+		this.warpLocation = location;
+		this.dbID = id;
+	}
+
+	/**
+	 * Get the warp database ID
+	 * 
+	 * @return Database ID
+	 */
+	public int getID(){
+		return dbID;
+	}
+	
 	/**
 	 * Replace variables in a message or command
 	 * 
@@ -272,6 +301,15 @@ public class Warp {
 	 */
 	public void setLocation(Location location) {
 		this.warpLocation = location;
+	}
+
+	/**
+	 * Get the warp location
+	 * 
+	 * @return Location of the warp
+	 */
+	public Location getLocation() {
+		return this.warpLocation;
 	}
 
 	/**
@@ -569,18 +607,36 @@ public class Warp {
 
 	/**
 	 * Save the current warp
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public void saveWarp() throws Exception {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		if (!(wp.warps.containsKey(this.name.toLowerCase()))) {
-			wp.warps.put(this.name.toLowerCase(), this);
+			saveWarpCache();
 			// Save to database
+			WarpDatabase.addWarp(this);
 		} else {
 			// Error
 			throw new Exception("The given warp '" + name + "' already exist!");
 		}
 	}
+	
+	/**
+	 * Save the current warp in cache
+	 * 
+	 * @throws Exception
+	 */
+	public void saveWarpCache() throws Exception {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!(wp.warps.containsKey(this.name.toLowerCase()))) {
+			wp.warps.put(this.name.toLowerCase(), this);
+		} else {
+			// Error
+			throw new Exception("The given warp '" + name + "' already exist!");
+		}
+	}
+
 
 	/**
 	 * Delete the current warp
@@ -590,8 +646,9 @@ public class Warp {
 	public void deleteWarp() throws Exception {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		if (!(wp.warps.containsKey(this.name))) {
-			wp.warps.remove(this.name.toLowerCase()); // Delete warp
+			deleteWarpCache();
 			// Delete from database
+			WarpDatabase.deleteWarp(this);
 		} else {
 			// Warp does not exist in name cache
 
@@ -607,6 +664,32 @@ public class Warp {
 			throw new Exception("The given warp '" + name + "' does not exist!");
 		}
 	}
+	
+	/**
+	 * Delete the current warp from cache
+	 * 
+	 * @throws Exception
+	 */
+	public void deleteWarpCache() throws Exception {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!(wp.warps.containsKey(this.name))) {
+			wp.warps.remove(this.name.toLowerCase()); // Delete warp
+		} else {
+			// Warp does not exist in name cache
+
+			/* Debugging Information */
+			if (Configuration.debug) {
+				SendConsole.info("action: deleteWarp");
+				SendConsole.info("result: warp '" + this.name
+						+ "' does not exist in name cache!");
+				SendConsole.info("warpCacheSize: " + wp.warps.size());
+			}
+
+			// Error
+			throw new Exception("The given warp '" + name + "' does not exist!");
+		}
+	}
+	
 
 	/**
 	 * Link a warp to a button
@@ -616,6 +699,11 @@ public class Warp {
 	 * @throws Exception
 	 */
 	public void linkWarp(Block block) throws Exception {
-		WarpLink link = new WarpLink(this, block);
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!wp.warpLinks.containsKey(block.getLocation())) {
+			// Create a new link
+			WarpLink link = new WarpLink(this, block);
+			wp.warpLinks.put(block.getLocation(), link); // Add link
+		}
 	}
 }

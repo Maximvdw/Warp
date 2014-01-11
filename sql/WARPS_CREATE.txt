@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS `{PREFIX}warps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `x` float NOT NULL,
+  `y` float NOT NULL,
+  `z` float NOT NULL,
+  `pitch` float NOT NULL,
+  `yaw` float NOT NULL,
+  `world` varchar(200) NOT NULL,
+  `owner` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

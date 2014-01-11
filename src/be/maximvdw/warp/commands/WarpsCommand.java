@@ -18,15 +18,16 @@
 
 package be.maximvdw.warp.commands;
 
-import java.util.LinkedList;
 import java.util.TreeMap;
 
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
+import be.maximvdw.warp.WarpLink;
 import be.maximvdw.warp.WarpPlugin;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
@@ -140,6 +141,32 @@ public class WarpsCommand implements CommandExecutor {
 						SendUnknown.toSender(
 								"&b[&3Warp&b]&e Warp '" + warp.getName()
 										+ "' has been deleted!", sender);
+					} else {
+						// Warp not found
+						SendUnknown.toSender("&b[&3Warp&b]&c Warp '" + name
+								+ "' does not exist! &4/warps list", sender);
+					}
+				} else {
+					// No name defined, show help
+
+				}
+			} else if (args[0].equalsIgnoreCase("link")) { // Link
+				// Check if name is defined
+				if (args.length >= 2) {
+					String name = args[1];
+					Warp warp = wp.getWarp(name); // Get the warp
+					// Check if the warp exists
+					if (warp != null) {
+						Block block = player.getTargetBlock(null, 10);
+						try {
+							warp.linkWarp(block);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						SendUnknown.toSender(
+								"&b[&3Warp&b]&a Warp '" + warp.getName()
+										+ "' has been linked!", sender);
 					} else {
 						// Warp not found
 						SendUnknown.toSender("&b[&3Warp&b]&c Warp '" + name

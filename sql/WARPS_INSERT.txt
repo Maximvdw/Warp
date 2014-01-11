@@ -1,0 +1,1 @@
+INSERT INTO `{PREFIX}warps` (`id`, `name`, `x`, `y`, `z`, `pitch`, `yaw`, `world`, `owner`) VALUES (NULL, '{NAME}', '{XPOS}', '{YPOS}', '{ZPOS}', '{PITCH}', '{YAW}', '{WORLD}', '{OWNER}');
