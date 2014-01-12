@@ -25,7 +25,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import be.maximvdw.warp.Warp;
 import be.maximvdw.warp.WarpLink;
@@ -33,6 +32,12 @@ import be.maximvdw.warp.WarpPlugin;
 import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.ui.SendConsole;
 
+/**
+ * Warp Plugin
+ * 
+ * @author Maximvdw
+ * @version 1.0.0
+ */
 public class PlayerListener implements Listener {
 	WarpPlugin wp = null;
 	
@@ -59,30 +64,31 @@ public class PlayerListener implements Listener {
 		}
 
 		Action action = event.getAction();
-		final Player player = event.getPlayer();
+		Player player = event.getPlayer();
 
 		// Return if the Block is not a switch
 		Material type = block.getType();
 		switch (type) {
+		case SIGN: // Fall through
+		case WALL_SIGN: // Fall through
 		case LEVER: // Fall through
 		case STONE_BUTTON: // Fall through
 		case WOOD_BUTTON:
-			break;
-		case TRIPWIRE:
-			break;
+			if (action == Action.RIGHT_CLICK_BLOCK){
+				break;	
+			}else{
+				return;
+			}
+		case TRIPWIRE: // Fall through
 		case STONE_PLATE: // Fall through
 		case WOOD_PLATE:
-			break;
-		case SIGN:
-			break;
+			if (action == Action.PHYSICAL){
+				break;	
+			}else{
+				return;
+			}
 		default:
 			return;
-		}
-
-		/* Debugging Information */
-		if (Configuration.debug) {
-			SendConsole.info("action: playerInteract");
-			SendConsole.info("result: Link has been found!");
 		}
 
 		// Get warp link
@@ -91,6 +97,12 @@ public class PlayerListener implements Listener {
 			// Link exists
 			Warp warp = link.getWarp();
 			warp.teleport(player); // Teleport the player
+			
+			/* Debugging Information */
+			if (Configuration.debug) {
+				SendConsole.info("action: playerInteract");
+				SendConsole.info("result: Link has been found!");
+			}
 		}
 	}
 }

@@ -35,6 +35,7 @@ import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.database.WarpDatabase;
 import be.maximvdw.warp.hooks.TownyHook;
 import be.maximvdw.warp.hooks.WarpHook;
+import be.maximvdw.warp.listeners.BlockListener;
 import be.maximvdw.warp.listeners.PlayerListener;
 import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.updater.Updater;
@@ -51,7 +52,7 @@ public class WarpPlugin extends JavaPlugin {
 	static WarpPlugin plugin = null; // Plugin instance
 	PluginManager pm = null; // Bukkit Plugin manager
 	TreeMap<String, Warp> warps = new TreeMap<String, Warp>(); // Loaded warps
-	TreeMap<Location, WarpLink> warpLinks = new TreeMap<Location, WarpLink>(); // Warp
+	TreeMap<String, WarpLink> warpLinks = new TreeMap<String, WarpLink>(); // Warp
 																				// links
 
 	@Override
@@ -97,6 +98,7 @@ public class WarpPlugin extends JavaPlugin {
 		try {
 			SendConsole.info("Registrating listeners...");
 			pm.registerEvents(new PlayerListener(this), this);
+			pm.registerEvents(new BlockListener(this), this);
 		} catch (Exception ex) {
 
 		}
@@ -249,6 +251,6 @@ public class WarpPlugin extends JavaPlugin {
 	 * @return WarpLink
 	 */
 	public WarpLink getLink(Block block) {
-		return warpLinks.get(block);
+		return warpLinks.get(block.getLocation().toString());
 	}
 }

@@ -20,6 +20,7 @@ package be.maximvdw.warp;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 /**
  * Warp Plugin
@@ -30,6 +31,7 @@ import org.bukkit.block.Block;
 public class WarpLink{
 	Block block = null; // Link location
 	Warp warp = null; // Linked warp
+	Player owner = null; // Link owner
 
 	/**
 	 * Link a warp to a trigger
@@ -59,15 +61,18 @@ public class WarpLink{
 			break;
 		case SIGN:
 			break;
+		case WALL_SIGN:
+			break;
 		default:
 			// Unkown blocktype
 			throw new Exception(
-					"Warps can only be linked to buttons,levers,tripwire,pressureplates or signs");
+					"Warps can not be linked to [" + type.toString() + "]");
 		}
 	}
 	
 	/**
 	 * Get the link block
+	 * 
 	 * @return Block
 	 */
 	public Block getBlock(){
@@ -76,9 +81,17 @@ public class WarpLink{
 	
 	/**
 	 * Get the linked warp
+	 * 
 	 * @return Warp
 	 */
 	public Warp getWarp(){
 		return warp;
+	}
+	
+	/**
+	 * Unlink the warp
+	 */
+	public void unlink(){
+		warp.unlinkWarp(this);
 	}
 }

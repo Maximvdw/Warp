@@ -41,7 +41,9 @@ public class Permissions {
 		Update,
 		Reset,
 		HelpWarp,
-		HelpSetWarp
+		HelpSetWarp,
+		UnlinkOwn,
+		UnlinkAll
 	}
 	
 	/**
@@ -126,6 +128,10 @@ public class Permissions {
 			return player.hasPermission("warp.command.teleport.help");
 		case HelpSetWarp:
 			return player.hasPermission("warp.command.setwarp.help");
+		case UnlinkOwn:
+			return player.hasPermission("warp.unlink.own");
+		case UnlinkAll:
+			return player.hasPermission("warp.unlink.*");
 		default:
 			return true;
 		}

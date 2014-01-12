@@ -117,7 +117,8 @@ public class Warp {
 	 *            Warp name
 	 * @param owner
 	 *            Warp owner
-	 * @param location Warp Location
+	 * @param location
+	 *            Warp Location
 	 * @param id
 	 *            Database ID
 	 */
@@ -133,10 +134,10 @@ public class Warp {
 	 * 
 	 * @return Database ID
 	 */
-	public int getID(){
+	public int getID() {
 		return dbID;
 	}
-	
+
 	/**
 	 * Replace variables in a message or command
 	 * 
@@ -621,7 +622,7 @@ public class Warp {
 			throw new Exception("The given warp '" + name + "' already exist!");
 		}
 	}
-	
+
 	/**
 	 * Save the current warp in cache
 	 * 
@@ -636,7 +637,6 @@ public class Warp {
 			throw new Exception("The given warp '" + name + "' already exist!");
 		}
 	}
-
 
 	/**
 	 * Delete the current warp
@@ -664,7 +664,7 @@ public class Warp {
 			throw new Exception("The given warp '" + name + "' does not exist!");
 		}
 	}
-	
+
 	/**
 	 * Delete the current warp from cache
 	 * 
@@ -689,7 +689,6 @@ public class Warp {
 			throw new Exception("The given warp '" + name + "' does not exist!");
 		}
 	}
-	
 
 	/**
 	 * Link a warp to a button
@@ -700,10 +699,23 @@ public class Warp {
 	 */
 	public void linkWarp(Block block) throws Exception {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
-		if (!wp.warpLinks.containsKey(block.getLocation())) {
+		if (!wp.warpLinks.containsKey(block.getLocation().toString())) {
 			// Create a new link
 			WarpLink link = new WarpLink(this, block);
-			wp.warpLinks.put(block.getLocation(), link); // Add link
+			wp.warpLinks.put(block.getLocation().toString(), link); // Add link
+		}
+	}
+
+	/** 
+	 * Unlink a warp
+	 * 
+	 * @param link Warp Link
+	 */
+	public void unlinkWarp(WarpLink link) {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (wp.warpLinks.containsKey(link.getBlock().getLocation().toString())) {
+			// Unlink the warp
+			wp.warpLinks.remove(link.getBlock().getLocation().toString()); // Remove link
 		}
 	}
 }
