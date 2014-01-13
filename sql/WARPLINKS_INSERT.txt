@@ -1,0 +1,12 @@
+INSERT INTO  `{PREFIX}warplinks` (
+`id` ,
+`warpid` ,
+`owner` ,
+`x` ,
+`y` ,
+`z` ,
+`world`
+)
+VALUES (
+NULL ,  '{WARPID}',  '{OWNER}',  '{XPOS}',  '{YPOS}',  '{ZPOS}',  '{WORLD}'
+);

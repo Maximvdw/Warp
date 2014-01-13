@@ -1,1 +1,1 @@
-DELETE FROM `{PREFIX}warps` WHERE `warp_warps`.`id` = {ID};
+DELETE FROM `{PREFIX}warps` WHERE `id` = {ID};

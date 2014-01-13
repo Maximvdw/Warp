@@ -461,7 +461,7 @@ public class Warp {
 			cachedLocations.remove(0); // Remove location
 		} else {
 			// Generate a random location
-			randomLocation = getRandomLocation();
+			randomLocation = getRandomLocation(false);
 		}
 
 		if (randomLocation != null) {
@@ -494,18 +494,36 @@ public class Warp {
 	 * 
 	 * @return Valid location to teleport to
 	 */
-	private Location getRandomLocation() {
+	private Location getRandomLocation(boolean background) {
 		// Get a random location in a square
 		Location location = null;
 		int flood = 0;
 		try {
+			final Biome[] biome = { null }; // Biome
 			do {
 				location = getRandomSquare(this.minRange, this.maxRange); // Random
-																			// Square
-				Biome biome = location.getBlock().getBiome();
+				final Location loc = location;
+				int waitfortask = Bukkit.getScheduler()
+						.scheduleSyncDelayedTask(WarpPlugin.getInstance(),
+								new Runnable() {
+									public void run() {
+										biome[0] = loc.getBlock().getBiome();
+									}
+								});
+				while (Bukkit.getScheduler().isCurrentlyRunning(waitfortask)
+						|| Bukkit.getScheduler().isQueued(waitfortask)) {
+					try {
+						if (background)
+							Thread.sleep(500);
+					} catch (InterruptedException e) {
+					}
+				} // Square
+
+				location = loc; // Set random location
+
 				if (this.includedBiomes.size() != 0) {
 					for (Biome b : this.includedBiomes) {
-						if (biome != b) {
+						if (biome[0] != b) {
 							location = null;
 						} else {
 							break;
@@ -513,7 +531,7 @@ public class Warp {
 					}
 				} else if (this.excludedBiomes.size() != 0) {
 					for (Biome b : this.excludedBiomes) {
-						if (biome == b) {
+						if (biome[0] == b) {
 							location = null;
 						}
 					}
@@ -525,11 +543,14 @@ public class Warp {
 					}
 				}
 				flood++;
+				if (background)
+					Thread.sleep(500);
 			} while (location == null && flood < 2000);
 		} catch (Exception ex) {
 			// Error
 			SendConsole.severe("Warp '" + this.name
 					+ "' was unable to generate a random warp!");
+			ex.printStackTrace();
 			return null;
 		}
 
@@ -701,21 +722,87 @@ public class Warp {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		if (!wp.warpLinks.containsKey(block.getLocation().toString())) {
 			// Create a new link
+			linkWarpCache(block);
+			// Add link to database
 			WarpLink link = new WarpLink(this, block);
+			WarpDatabase.addWarpLink(link);
+		}
+	}
+
+	/**
+	 * Link a warp to a button
+	 * 
+	 * @param block
+	 *            Block
+	 * @param id
+	 *            Database id
+	 * @throws Exception
+	 */
+	public void linkWarpCache(Block block, int id) throws Exception {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (!wp.warpLinks.containsKey(block.getLocation().toString())) {
+			// Create a new link
+			WarpLink link = new WarpLink(this, block);
+			link.setID(id);
 			wp.warpLinks.put(block.getLocation().toString(), link); // Add link
 		}
 	}
 
-	/** 
+	/**
+	 * Link a warp to a button
+	 * 
+	 * @param block
+	 *            Block
+	 * @throws Exception
+	 */
+	public void linkWarpCache(Block block) throws Exception {
+		linkWarpCache(block, -1);
+	}
+
+	/**
 	 * Unlink a warp
 	 * 
-	 * @param link Warp Link
+	 * @param link
+	 *            Warp Link
 	 */
 	public void unlinkWarp(WarpLink link) {
 		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
 		if (wp.warpLinks.containsKey(link.getBlock().getLocation().toString())) {
 			// Unlink the warp
-			wp.warpLinks.remove(link.getBlock().getLocation().toString()); // Remove link
+			unlinkWarpCache(link);
+			WarpDatabase.deleteWarpLink(link);
 		}
+	}
+
+	/**
+	 * Unlink a warp in cache
+	 * 
+	 * @param link
+	 *            Warp Link
+	 */
+	public void unlinkWarpCache(WarpLink link) {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		if (wp.warpLinks.containsKey(link.getBlock().getLocation().toString())) {
+			// Unlink the warp
+			wp.warpLinks.remove(link.getBlock().getLocation().toString()); // Remove
+																			// link
+		}
+	}
+
+	/**
+	 * Get warp by id
+	 * 
+	 * @param id
+	 *            Database id
+	 * @return Warp
+	 */
+	public static Warp getWarp(int id) {
+		WarpPlugin wp = WarpPlugin.getInstance(); // Get instance
+		for (Warp warp : wp.warps.values()) {
+			if (warp.getID() == id) {
+				return warp;
+			}
+		}
+		return null; // No warp found
 	}
 }

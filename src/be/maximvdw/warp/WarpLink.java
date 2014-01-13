@@ -32,6 +32,7 @@ public class WarpLink{
 	Block block = null; // Link location
 	Warp warp = null; // Linked warp
 	Player owner = null; // Link owner
+	int dbID = -1; // Database id
 
 	/**
 	 * Link a warp to a trigger
@@ -93,5 +94,21 @@ public class WarpLink{
 	 */
 	public void unlink(){
 		warp.unlinkWarp(this);
+	}
+	
+	/**
+	 * Get the warplink database id
+	 * @return ID
+	 */
+	public int getID(){
+		return dbID;
+	}
+	
+	/**
+	 * Set the warplink database id
+	 * @param id ID
+	 */
+	public void setID(int id){
+		dbID = id;
 	}
 }

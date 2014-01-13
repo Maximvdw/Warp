@@ -24,6 +24,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
+import be.maximvdw.warp.ui.SendGame;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
 import be.maximvdw.warp.utils.Permissions.Permission;
@@ -44,8 +45,10 @@ public class SetRndWarpCommand implements CommandExecutor {
 	public static void showUsage(Object sender) {
 		// Check if the sender has permissions
 		if (Permissions.hasPermissions(Permission.HelpSetWarp, sender)) {
-			SendUnknown.toSender("&b[&3Warp&b]&c /setrndwarp <warp> ([-min <value>]|[-max <value>])",
-					sender); // Send command usage
+			SendUnknown
+					.toSender(
+							"&b[&3Warp&b]&c /setrndwarp <warp> ([-min <value>]|[-max <value>])",
+							sender); // Send command usage
 		} else {
 			// No permissions
 			SendUnknown.toSender("&cYou do not have permissions!", sender);
@@ -71,13 +74,24 @@ public class SetRndWarpCommand implements CommandExecutor {
 
 		/* Check if there are enough arguments */
 		if (args.length >= 1) {
-			if (args.length >= 2) {
-
-			} else {
+			if (args.length >= 3) {
 				// Set named warp
 				String name = args[0];
 				int minRadius = 0;
 				int maxRadius = 0;
+				for (int i = 1;i<args.length-1;i+=2){
+					switch (args[i].toLowerCase()){
+					case "-max":
+						maxRadius = Integer.parseInt(args[i+1]);
+						break;
+					case "-min":
+						minRadius = Integer.parseInt(args[i+1]);
+						break;
+					default:
+						break;
+					}
+				}
+				// Set named warp
 				Warp warp = new Warp(name, player); // Create a new warp
 				warp.setRadius(minRadius, maxRadius);
 				try {
@@ -85,6 +99,9 @@ public class SetRndWarpCommand implements CommandExecutor {
 				} catch (Exception e) {
 					// Error while saving
 				}
+				SendGame.toPlayer("&b[&3Warp&b]&a Random Warp '" + name + "' created!",player);
+			} else {
+				
 			}
 		} else {
 			// Show command usage

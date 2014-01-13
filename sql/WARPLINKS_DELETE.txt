@@ -1,0 +1,1 @@
+DELETE FROM `{PREFIX}warplinks` WHERE `id` = {ID};

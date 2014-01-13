@@ -29,6 +29,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import be.maximvdw.warp.commands.SetRndWarpCommand;
 import be.maximvdw.warp.commands.SetWarpCommand;
+import be.maximvdw.warp.commands.WarpCfgCommand;
 import be.maximvdw.warp.commands.WarpCommand;
 import be.maximvdw.warp.commands.WarpsCommand;
 import be.maximvdw.warp.config.Configuration;
@@ -78,6 +79,7 @@ public class WarpPlugin extends JavaPlugin {
 			WarpDatabase.initDatabase();
 			
 			WarpDatabase.getWarps();
+			WarpDatabase.getWarpLinks();
 		} catch (Exception ex) {
 			// Unknown error
 			ex.printStackTrace();
@@ -90,6 +92,7 @@ public class WarpPlugin extends JavaPlugin {
 			getCommand("setwarp").setExecutor(new SetWarpCommand());
 			getCommand("warps").setExecutor(new WarpsCommand());
 			getCommand("setrndwarp").setExecutor(new SetRndWarpCommand());
+			getCommand("warpcfg").setExecutor(new WarpCfgCommand());
 		} catch (Exception ex) {
 			// Unable to register all commands
 		}

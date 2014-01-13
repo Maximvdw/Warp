@@ -82,7 +82,7 @@ public class WarpCommand implements CommandExecutor {
 					if (warp != null) {
 						// Check if the player has permission
 						if (warp.hasPermission(player)) {
-							warp.teleport(targetPlayer);
+							warp.warpPlayer(targetPlayer, true);
 							// Player not found
 							SendUnknown.toSender("&b[&3Warp&b]&a Teleported "
 									+ targetPlayer.getName() + " to warp '"
@@ -110,7 +110,7 @@ public class WarpCommand implements CommandExecutor {
 				if (warp != null) {
 					// Check if the player has permission
 					if (warp.hasPermission(player)) {
-						warp.teleport(player);
+						warp.warpPlayer(player, true);
 					} else {
 						// No permissions
 						SendGame.toPlayer("&cYou do not have permissions!",

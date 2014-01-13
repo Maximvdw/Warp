@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS `{PREFIX}warplinks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `warpid` int(11) NOT NULL,
+  `owner` mediumtext NOT NULL,
+  `x` int(11) NOT NULL,
+  `y` int(11) NOT NULL,
+  `z` int(11) NOT NULL,
+  `world` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

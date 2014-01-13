@@ -96,7 +96,7 @@ public class PlayerListener implements Listener {
 		if (link != null) {
 			// Link exists
 			Warp warp = link.getWarp();
-			warp.teleport(player); // Teleport the player
+			warp.warpPlayer(player, false); // Teleport the player
 			
 			/* Debugging Information */
 			if (Configuration.debug) {
