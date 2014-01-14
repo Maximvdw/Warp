@@ -21,7 +21,6 @@ package be.maximvdw.warp;
 import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;

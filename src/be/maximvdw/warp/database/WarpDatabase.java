@@ -28,8 +28,12 @@ import java.io.Writer;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -42,6 +46,7 @@ import be.maximvdw.warp.WarpLink;
 import be.maximvdw.warp.WarpPlugin;
 import be.maximvdw.warp.config.Configuration;
 import be.maximvdw.warp.ui.SendConsole;
+import be.maximvdw.warp.utils.PlayerUtils;
 
 public class WarpDatabase {
 	static MySQL db = null; // Database connection
@@ -66,10 +71,18 @@ public class WarpDatabase {
 				db.createTable(query);
 			}
 			if (!db.checkTable(Configuration.prefix + "warplinks")) {
-				// Warps table does not exist
+				// Warp link table does not exist
 				SendConsole.info("Creating table '" + Configuration.prefix
 						+ "warplinks'...");
 				String query = getQuery("WARPLINKS_CREATE").replace("{PREFIX}",
+						Configuration.prefix);
+				db.createTable(query);
+			}
+			if (!db.checkTable(Configuration.prefix + "warpcfg")) {
+				// Warp cfg table does not exist
+				SendConsole.info("Creating table '" + Configuration.prefix
+						+ "warpcfg'...");
+				String query = getQuery("WARPCFG_CREATE").replace("{PREFIX}",
 						Configuration.prefix);
 				db.createTable(query);
 			}
@@ -78,6 +91,7 @@ public class WarpDatabase {
 
 	/**
 	 * Delete a warplink from the database
+	 * 
 	 * @param warp
 	 */
 	public static void deleteWarpLink(final WarpLink link) {
@@ -91,16 +105,19 @@ public class WarpDatabase {
 						query = query.replace("{ID}", "" + link.getID());
 
 						// Execute query
-						SendConsole.info("Removing warplink '" + link.getWarp().getName()
+						SendConsole.info("Removing warplink '"
+								+ link.getWarp().getName()
 								+ "' from the database ...");
 						db.query(query);
 					}
 				});
 	}
-	
+
 	/**
 	 * Delete a warp from the database
-	 * @param warp Warp
+	 * 
+	 * @param warp
+	 *            Warp
 	 */
 	public static void deleteWarp(final Warp warp) {
 		// Thread the database connection
@@ -116,6 +133,12 @@ public class WarpDatabase {
 						SendConsole.info("Removing warp '" + warp.getName()
 								+ "' from the database ...");
 						db.query(query);
+						query = getQuery("WARPCFG_DELETE");
+						query = query.replace("{PREFIX}", Configuration.prefix);
+						query = query.replace("{ID}", "" + warp.getID());
+
+						// Execute query
+						db.query(query);
 					}
 				});
 	}
@@ -123,7 +146,8 @@ public class WarpDatabase {
 	/**
 	 * Add a warplink to the databse
 	 * 
-	 * @param link Warp Link
+	 * @param link
+	 *            Warp Link
 	 */
 	public static void addWarpLink(final WarpLink link) {
 		// Thread the database connection
@@ -188,6 +212,51 @@ public class WarpDatabase {
 						SendConsole.info("Adding warp '" + warp.getName()
 								+ "' to the database ...");
 						db.query(query);
+						query = getQuery("WARPCFG_INSERT");
+						query = query.replace("{PREFIX}", Configuration.prefix);
+						query = query.replace("{ID}", "" + warp.getID());
+						query = query.replace("{ISRANDOM}",
+								"" + (warp.isRandom() ? 1 : 0));
+						query = query.replace("{PLAYSOUND}", ""
+								+ (warp.playSound ? 1 : 0));
+						query = query.replace("{IGNOREPITCH}", ""
+								+ (warp.ignorePitch ? 1 : 0));
+						query = query.replace("{IGNOREYAW}", ""
+								+ (warp.ignoreYaw ? 1 : 0));
+						query = query.replace("{LOADCHUNK}", ""
+								+ (warp.loadChunk ? 1 : 0));
+						query = query.replace("{CMDSONCMD}", ""
+								+ (warp.cmdsOnCmd ? 1 : 0));
+						query = query.replace("{MSGONCMD}", ""
+								+ (warp.msgOnCmd ? 1 : 0));
+						query = query.replace("{CIRCLERADIUS}", ""
+								+ (warp.circleRadius ? 1 : 0));
+						query = query.replace("{BROADCASTMESSAGE}", ""
+								+ (warp.broadcastMessage ? 1 : 0));
+						query = query.replace("{MESSAGE}", warp.getMessage());
+						query = query.replace("{COMMANDS}", warp.getCommands()
+								.toString());
+						query = query.replace("{MINRANGE}",
+								"" + warp.getMinRadius());
+						query = query.replace("{MAXRANGE}",
+								"" + warp.getMaxRadius());
+						query = query.replace("{EXCLUDEDBIOMES}", warp
+								.getExcludedBiomes().toString());
+						query = query.replace("{INCLUDEDBIOMES}", warp
+								.getIncludedBiomes().toString());
+						query = query.replace("{CUSTOMNODE}",
+								"" + warp.getCustomNode());
+						query = query.replace("{SEARCHSIZE}",
+								"" + warp.getSearchSize());
+						query = query.replace("{CACHESIZE}",
+								"" + warp.getCacheSize());
+						DateFormat dateFormat = new SimpleDateFormat(
+								"yyyy-MM-dd HH:mm:ss");
+						Date date = new Date();
+						query = query.replace("{CREATED}",
+								"" + dateFormat.format(date));
+						// Execute query
+						db.query(query);
 					}
 				});
 	}
@@ -212,7 +281,8 @@ public class WarpDatabase {
 						try {
 							String name = result.getString("name");
 							String uuid = result.getString("owner");
-							Player owner = Bukkit.getServer().getPlayer(uuid);
+							Player owner = PlayerUtils.getPlayerByUUID(UUID
+									.fromString(uuid));
 							int id = result.getInt("id");
 							float x = result.getFloat("x");
 							float y = result.getFloat("y");
@@ -246,14 +316,14 @@ public class WarpDatabase {
 		Bukkit.getScheduler().runTaskAsynchronously(wp, new Runnable() {
 			public void run() {
 				// Wait until the warps are loaded
-				while (flagWarpsLoaded == false){
+				while (flagWarpsLoaded == false) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 
 					}
 				}
-				
+
 				String query = getQuery("WARPLINKS_SELECT");
 				query = query.replace("{PREFIX}", Configuration.prefix);
 				ResultSet result = db.query(query);
@@ -266,7 +336,8 @@ public class WarpDatabase {
 						try {
 							int warpid = result.getInt("warpid");
 							String uuid = result.getString("owner");
-							Player owner = Bukkit.getServer().getPlayer(uuid);
+							Player owner = PlayerUtils.getPlayerByUUID(UUID
+									.fromString(uuid));
 							int id = result.getInt("id");
 							int x = result.getInt("x");
 							int y = result.getInt("y");
@@ -275,18 +346,29 @@ public class WarpDatabase {
 									result.getString("world"));
 							Location location = new Location(world, x, y, z);
 							Warp warp = Warp.getWarp(warpid);
-							Block block = world.getBlockAt(location);
-							try {
-								warp.linkWarpCache(block,id);
-							} catch (Exception ex) {
-								// Warp is an invalid block
-								SendConsole.warning("Warplink '"
-										+ warp.getName() + "' @ " + x + "," + y
-										+ "," + z + " is missing!");
+							if (warp != null) {
+								Block block = world.getBlockAt(location);
+								try {
+									warp.linkWarpCache(block, id);
+								} catch (Exception ex) {
+									// Warp is an invalid block
+									SendConsole.warning("Warplink '"
+											+ warp.getName() + "' @ " + x + ","
+											+ y + "," + z + " is missing!");
+								}
+							} else {
+								// Warp does not exists anymore
+								SendConsole.warning("Warplink @ " + x + ","
+										+ y + "," + z + " has an invalid warp!");
+								/* Debugging Information */
+								if (Configuration.debug) {
+									SendConsole.info("action: load warplinks from database");
+									SendConsole.info("result: Warplink has invalid warp.");
+									SendConsole.info("warpid: " + warpid);
+								}
 							}
 						} catch (Exception ex) {
 							// Warp can not be linked
-							ex.printStackTrace();
 						}
 					}
 				} catch (SQLException e) {
@@ -322,7 +404,8 @@ public class WarpDatabase {
 	/**
 	 * Convert an input stream to string
 	 * 
-	 * @param is Input Stream
+	 * @param is
+	 *            Input Stream
 	 * @return String
 	 * @throws IOException
 	 */

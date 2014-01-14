@@ -49,21 +49,22 @@ public class Warp {
 	Player owner = null; // The owner of the warp
 	Location warpLocation = null; // Warp location
 	String customNode = ""; // Custom permission node
-	boolean ignorePitch = false; // Ignore pitch on teleport
-	boolean ignoreYaw = false; // Ignore yaw on teleport
-	boolean loadChunk = true; // Load chunk on teleport
-	boolean playSound = true; // Play a sound on teleport
-	boolean isRandom = false; // Random teleport
-	boolean broadcastMessage = false; // Broadcast message
-	boolean cmdsOnCmd = true; // Perform commands when using /warp
-	boolean msgOnCmd = true; // Show message when using /warp
-	boolean circleRadius = false; // Min-Max radius is a circle instead of
+	public boolean ignorePitch = false; // Ignore pitch on teleport
+	public boolean ignoreYaw = false; // Ignore yaw on teleport
+	public boolean loadChunk = true; // Load chunk on teleport
+	public boolean playSound = true; // Play a sound on teleport
+	public boolean isRandom = false; // Random teleport
+	public boolean broadcastMessage = false; // Broadcast message
+	public boolean cmdsOnCmd = true; // Perform commands when using /warp
+	public boolean msgOnCmd = true; // Show message when using /warp
+	public boolean circleRadius = false; // Min-Max radius is a circle instead of
 									// square
 	int minRange = -1; // Minimum radius
 	int maxRange = -1; // Maximum radius
 	int searchSize = 16; // Search size on random teleport
 	int cacheSize = 10; // Cache size
 	int dbID = 0; // Database Identifier
+	static int lastID = 0; // Last id
 	LinkedList<Biome> excludedBiomes = new LinkedList<Biome>(); // Excluded
 																// biomes
 	LinkedList<Biome> includedBiomes = new LinkedList<Biome>(); // Included
@@ -745,6 +746,13 @@ public class Warp {
 			WarpLink link = new WarpLink(this, block);
 			link.setID(id);
 			wp.warpLinks.put(block.getLocation().toString(), link); // Add link
+			
+			/* Debugging Information */
+			if (Configuration.debug) {
+				SendConsole.info("action: linkWarpCache");
+				SendConsole.info("result: warplink has been made");
+				SendConsole.info("warplink size: " + wp.warpLinks.size());
+			}
 		}
 	}
 
@@ -804,5 +812,50 @@ public class Warp {
 			}
 		}
 		return null; // No warp found
+	}
+	
+	/**
+	 * Get a list of all the commands
+	 * 
+	 * @return LinkedList String
+	 */
+	public LinkedList<String> getCommands(){
+		return this.commands;
+	}
+	
+	/**
+	 * Get biome search size
+	 * 
+	 * @return Biome search size
+	 */
+	public int getSearchSize(){
+		return searchSize;
+	}
+	
+	/**
+	 * Set the biome search size
+	 * 
+	 * @param size Biome search size
+	 */
+	public void setSearchSize(int size){
+		this.searchSize = size;
+	}
+	
+	/**
+	 * Get biome search size
+	 * 
+	 * @return cache size
+	 */
+	public int getCacheSize(){
+		return this.cacheSize;
+	}
+	
+	/**
+	 * Set the cache size
+	 * 
+	 * @param size cache size
+	 */
+	public void setCacheSize(int size){
+		this.cacheSize = size;
 	}
 }

@@ -1,0 +1,30 @@
+INSERT INTO  `{PREFIX}warpcfg` (
+`id` ,
+`customNode` ,
+`ignorePitch` ,
+`ignoreYaw` ,
+`loadChunk` ,
+`playSound` ,
+`isRandom` ,
+`broadcastMessage` ,
+`cmdsOnCmd` ,
+`msgOnCmd` ,
+`circleRadius` ,
+`minRange` ,
+`maxRange` ,
+`searchSize` ,
+`cacheSize` ,
+`excludedBiomes` ,
+`includedBiomes` ,
+`excludedBlocks` ,
+`warpHooks` ,
+`commands` ,
+`message` ,
+`sound` ,
+`created`
+)
+VALUES (
+'{ID}',  '{CUSTOMNODE}',  '{IGNOREPITCH}',  '{IGNOREYAW}',  '{LOADCHUNK}',  '{PLAYSOUND}',  '{ISRANDOM}',  '{BROADCASTMESSAGE}',  '{CMDSONCMD}',
+  '{MSGONCMD}',  '{CIRCLERADIUS}',  '{MINRANGE}',  '{MAXRANGE}',  '{SEARCHSIZE}',  '{CACHESIZE}',  '{EXCLUDEDBIOMES}',  
+  '{INCLUDEDBIOMES}',  '{EXCLUDEDBLOCKS}',  '{WARPHOOKS}',  '{COMMANDS}',  '{MESSAGE}',  '{SOUND}', '{CREATED}'
+);
