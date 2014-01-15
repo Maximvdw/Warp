@@ -14,6 +14,8 @@ commands:
     description: Delete a warp
   setrndwarp:
     description: Create a new random warp
+  warpcfg:
+    description: Configure a warp
 permissions:
   warp.*:
     description: Allows you to use all commands and warps

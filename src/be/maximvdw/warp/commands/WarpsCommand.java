@@ -18,6 +18,9 @@
 
 package be.maximvdw.warp.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.bukkit.block.Block;
@@ -27,11 +30,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import be.maximvdw.warp.Warp;
-import be.maximvdw.warp.WarpLink;
 import be.maximvdw.warp.WarpPlugin;
 import be.maximvdw.warp.ui.SendUnknown;
 import be.maximvdw.warp.utils.Permissions;
 import be.maximvdw.warp.utils.Permissions.Permission;
+import be.maximvdw.warp.utils.tellraw.*;
 
 /**
  * Warp Plugin
@@ -65,7 +68,21 @@ public class WarpsCommand implements CommandExecutor {
 	 *            Warp
 	 */
 	public static void showWarpInfo(Warp warp, Object sender) {
-		SendUnknown.toSender(" " + warp.getName() + "", sender);
+		JSONChatMessage messageWarp = new JSONChatMessage();
+		JSONChatExtra extraWarp = new JSONChatExtra(String.format("%-10s",
+				warp.getName()), JSONChatColor.GOLD,
+				new ArrayList<JSONChatFormat>());
+		extraWarp.setHoverEvent(JSONChatHoverEventType.SHOW_TEXT,
+				"Click here to warp to '" + warp.getName() + "'");
+		extraWarp.setClickEvent(JSONChatClickEventType.RUN_COMMAND, "/warp "
+				+ warp.getName());
+
+		messageWarp.addExtra(extraWarp);
+		messageWarp.addText(
+				" - " + String.format("%-15s", warp.getOwner().getName())
+						+ " @ ", JSONChatColor.YELLOW,
+				new ArrayList<JSONChatFormat>());
+		messageWarp.sendToPlayer((Player) sender);
 	}
 
 	/**
@@ -74,22 +91,33 @@ public class WarpsCommand implements CommandExecutor {
 	 * @param sender
 	 *            Sender
 	 */
-	public static void showWarps(Object sender) {
+	public static void showWarps(Object sender, int page) {
 		TreeMap<String, Warp> warps = Warp.getWarps(); // Get a list
 		if (Permissions.hasPermissions(Permission.List, sender)) {
 			if (warps.size() != 0) {
-				SendUnknown.toSender("&b[&3Warp&b]&c Available warps:\n",
-						sender); // Send message
-				int count = 0;
+				int pages = warps.size() / 9;
+				if (warps.size() % 9 != 0) {
+					pages += 1;
+				}
+
+				SendUnknown.toSender(
+						"&b[&3Warp&b]&c Available warps: &b[Page &3" + page
+								+ "&b of &3" + pages + "&b]\n", sender); // Send
+																			// message
+
 				boolean listAll = Permissions.hasPermissions(
 						Permission.ListAll, sender);
-				for (Warp warp : warps.values()) {
+				for (int i = 0; i < 9; i++) {
+					Warp warp = (Warp)warps.values().toArray()[i + ((page-1)*9)];
 					if (listAll) {
 						// Show warp name
 						showWarpInfo(warp, sender);
 					} else if (Permissions.hasPermissions(warp, sender)) {
 						// Show warp name
 						showWarpInfo(warp, sender);
+					}
+					if (warps.lastEntry().getValue() == warp){
+						break;
 					}
 				}
 			} else {
@@ -125,7 +153,12 @@ public class WarpsCommand implements CommandExecutor {
 		/* Check if there are enough arguments */
 		if (args.length >= 1) {
 			if (args[0].equalsIgnoreCase("list")) { // List
-				showWarps(sender);
+				if (args.length >= 2){
+					int page = Integer.parseInt(args[1]);
+					showWarps(sender,page);
+				}else{
+					showWarps(sender,1);	
+				}
 			} else if (args[0].equalsIgnoreCase("del")) { // Delete
 				// Check if name is defined
 				if (args.length >= 2) {

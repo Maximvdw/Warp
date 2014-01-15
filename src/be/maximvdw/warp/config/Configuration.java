@@ -40,6 +40,7 @@ import be.maximvdw.warp.WarpPlugin;
 public class Configuration {
 	public static boolean checkUpdate = true; // Check for updates
 	public static boolean autoUpdate = true; // Auto update
+	public static boolean useMySQL = false; // Use mysql
 	public static boolean allowMetrics = true; // Allow metrics
 	public static String hostname = "localhost"; // Database Hostname
 	public static String portnmbr = "3306"; // Database Portnumber

@@ -53,7 +53,7 @@ public class WarpPlugin extends JavaPlugin {
 	PluginManager pm = null; // Bukkit Plugin manager
 	TreeMap<String, Warp> warps = new TreeMap<String, Warp>(); // Loaded warps
 	TreeMap<String, WarpLink> warpLinks = new TreeMap<String, WarpLink>(); // Warp
-																				// links
+	TreeMap<String, WarpHook> pluginHooks = new TreeMap<String, WarpHook>(); // Warp hooks																	// links
 
 	@Override
 	public void onEnable() {
@@ -75,10 +75,8 @@ public class WarpPlugin extends JavaPlugin {
 		// Connect to database
 		try {
 			SendConsole.info("Loading database...");
+			new WarpDatabase(this);
 			WarpDatabase.initDatabase();
-			
-			WarpDatabase.getWarps();
-			WarpDatabase.getWarpLinks();
 		} catch (Exception ex) {
 			// Unknown error
 			ex.printStackTrace();

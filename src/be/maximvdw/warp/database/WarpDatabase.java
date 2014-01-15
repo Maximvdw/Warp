@@ -25,14 +25,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -49,44 +46,75 @@ import be.maximvdw.warp.ui.SendConsole;
 import be.maximvdw.warp.utils.PlayerUtils;
 
 public class WarpDatabase {
-	static MySQL db = null; // Database connection
+	static Database db = null; // Database connection
 	static boolean flagWarpsLoaded = false;
+	static WarpPlugin wp = null; // Warp Plugin
 
+	/**
+	 * Initialize the warpdatabase
+	 * 
+	 * @param plugin
+	 *            WarpPlugin
+	 */
+	public WarpDatabase(WarpPlugin plugin) {
+		wp = plugin;
+	}
+
+	/**
+	 * Initialize and load the database
+	 */
 	public static void initDatabase() {
-		/* Initialize a new database connection */
-		db = new MySQL(WarpPlugin.getInstance().getLogger(),
-				Configuration.prefix, Configuration.hostname,
-				Configuration.portnmbr, Configuration.database,
-				Configuration.username, Configuration.password);
-		db.open();
-		// Check if warps table exists
-		if (db != null) {
-			SendConsole.info("Checking tables ...");
-			if (!db.checkTable(Configuration.prefix + "warps")) {
-				// Warps table does not exist
-				SendConsole.info("Creating table '" + Configuration.prefix
-						+ "warps'...");
-				String query = getQuery("WARPS_CREATE").replace("{PREFIX}",
-						Configuration.prefix);
-				db.createTable(query);
+		// Thread the database connection
+		Bukkit.getScheduler().runTaskAsynchronously(wp, new Runnable() {
+			public void run() {
+				/* Initialize a new database connection */
+				if (Configuration.useMySQL){
+				db = new MySQL(WarpPlugin.getInstance().getLogger(),
+						Configuration.prefix, Configuration.hostname,
+						Configuration.portnmbr, Configuration.database,
+						Configuration.username, Configuration.password);
+				}else{
+					// Use SQLite
+					db = new SQLite(WarpPlugin.getInstance().getLogger(),
+							Configuration.prefix, "warpDatabase",
+							wp.getDataFolder().toString());
+				}
+				db.open();
+				// Check if warps table exists
+				if (db != null) {
+					SendConsole.info("Checking tables ...");
+					if (!db.checkTable(Configuration.prefix + "warps")) {
+						// Warps table does not exist
+						SendConsole.info("Creating table '"
+								+ Configuration.prefix + "warps'...");
+						String query = getQuery("WARPS_CREATE").replace(
+								"{PREFIX}", Configuration.prefix);
+						db.createTable(query);
+					}
+					if (!db.checkTable(Configuration.prefix + "warplinks")) {
+						// Warp link table does not exist
+						SendConsole.info("Creating table '"
+								+ Configuration.prefix + "warplinks'...");
+						String query = getQuery("WARPLINKS_CREATE").replace(
+								"{PREFIX}", Configuration.prefix);
+						db.createTable(query);
+					}
+					if (!db.checkTable(Configuration.prefix + "warpcfg")) {
+						// Warp cfg table does not exist
+						SendConsole.info("Creating table '"
+								+ Configuration.prefix + "warpcfg'...");
+						String query = getQuery("WARPCFG_CREATE").replace(
+								"{PREFIX}", Configuration.prefix);
+						db.createTable(query);
+					}
+					
+					/* Get warps */
+					getWarps();
+					/* Get warp links */
+					getWarpLinks();
+				}
 			}
-			if (!db.checkTable(Configuration.prefix + "warplinks")) {
-				// Warp link table does not exist
-				SendConsole.info("Creating table '" + Configuration.prefix
-						+ "warplinks'...");
-				String query = getQuery("WARPLINKS_CREATE").replace("{PREFIX}",
-						Configuration.prefix);
-				db.createTable(query);
-			}
-			if (!db.checkTable(Configuration.prefix + "warpcfg")) {
-				// Warp cfg table does not exist
-				SendConsole.info("Creating table '" + Configuration.prefix
-						+ "warpcfg'...");
-				String query = getQuery("WARPCFG_CREATE").replace("{PREFIX}",
-						Configuration.prefix);
-				db.createTable(query);
-			}
-		}
+		});
 	}
 
 	/**
@@ -265,117 +293,95 @@ public class WarpDatabase {
 	 * Get all warps from the database
 	 */
 	public static void getWarps() {
-		flagWarpsLoaded = false; // Set flag to false
-		final WarpPlugin wp = WarpPlugin.getInstance();
-		// Thread the database connection
-		Bukkit.getScheduler().runTaskAsynchronously(wp, new Runnable() {
-			public void run() {
-				String query = getQuery("WARPS_SELECT");
-				query = query.replace("{PREFIX}", Configuration.prefix);
-				ResultSet result = db.query(query);
-				SendConsole.info("Loading warps from database ..."); // Log to
-																		// console
-				// Get the result
+		String query = getQuery("WARPS_SELECT");
+		query = query.replace("{PREFIX}", Configuration.prefix);
+		ResultSet result = db.query(query);
+		SendConsole.info("Loading warps from database ..."); // Log to
+																// console
+		// Get the result
+		try {
+			while (result.next()) {
 				try {
-					while (result.next()) {
-						try {
-							String name = result.getString("name");
-							String uuid = result.getString("owner");
-							Player owner = PlayerUtils.getPlayerByUUID(UUID
-									.fromString(uuid));
-							int id = result.getInt("id");
-							float x = result.getFloat("x");
-							float y = result.getFloat("y");
-							float z = result.getFloat("z");
-							float pitch = result.getFloat("pitch");
-							float yaw = result.getFloat("yaw");
-							World world = wp.getServer().getWorld(
-									result.getString("world"));
-							Location location = new Location(world, x, y, z,
-									yaw, pitch);
-							Warp warp = new Warp(name, owner, location, id);
-							warp.saveWarpCache();
-						} catch (Exception ex) {
-							ex.printStackTrace();
-						}
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+					String name = result.getString("name");
+					String uuid = result.getString("owner");
+					Player owner = PlayerUtils.getPlayerByUUID(UUID
+							.fromString(uuid));
+					int id = result.getInt("id");
+					float x = result.getFloat("x");
+					float y = result.getFloat("y");
+					float z = result.getFloat("z");
+					float pitch = result.getFloat("pitch");
+					float yaw = result.getFloat("yaw");
+					World world = wp.getServer().getWorld(
+							result.getString("world"));
+					Location location = new Location(world, x, y, z, yaw, pitch);
+					Warp warp = new Warp(name, owner, location, id);
+					warp.saveWarpCache();
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
-				flagWarpsLoaded = true;
 			}
-		});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Get all warp links from the database
 	 */
 	public static void getWarpLinks() {
-		final WarpPlugin wp = WarpPlugin.getInstance();
-		// Thread the database connection
-		Bukkit.getScheduler().runTaskAsynchronously(wp, new Runnable() {
-			public void run() {
-				// Wait until the warps are loaded
-				while (flagWarpsLoaded == false) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-
-					}
-				}
-
-				String query = getQuery("WARPLINKS_SELECT");
-				query = query.replace("{PREFIX}", Configuration.prefix);
-				ResultSet result = db.query(query);
-				SendConsole.info("Loading warp links from database ..."); // Log
-																			// to
-																			// console
-				// Get the result
+		String query = getQuery("WARPLINKS_SELECT");
+		query = query.replace("{PREFIX}", Configuration.prefix);
+		ResultSet result = db.query(query);
+		SendConsole.info("Loading warp links from database ..."); // Log
+																	// to
+																	// console
+		// Get the result
+		try {
+			while (result.next()) {
 				try {
-					while (result.next()) {
+					int warpid = result.getInt("warpid");
+					String uuid = result.getString("owner");
+					Player owner = PlayerUtils.getPlayerByUUID(UUID
+							.fromString(uuid));
+					int id = result.getInt("id");
+					int x = result.getInt("x");
+					int y = result.getInt("y");
+					int z = result.getInt("z");
+					World world = wp.getServer().getWorld(
+							result.getString("world"));
+					Location location = new Location(world, x, y, z);
+					Warp warp = Warp.getWarp(warpid);
+					if (warp != null) {
+						Block block = world.getBlockAt(location);
 						try {
-							int warpid = result.getInt("warpid");
-							String uuid = result.getString("owner");
-							Player owner = PlayerUtils.getPlayerByUUID(UUID
-									.fromString(uuid));
-							int id = result.getInt("id");
-							int x = result.getInt("x");
-							int y = result.getInt("y");
-							int z = result.getInt("z");
-							World world = wp.getServer().getWorld(
-									result.getString("world"));
-							Location location = new Location(world, x, y, z);
-							Warp warp = Warp.getWarp(warpid);
-							if (warp != null) {
-								Block block = world.getBlockAt(location);
-								try {
-									warp.linkWarpCache(block, id);
-								} catch (Exception ex) {
-									// Warp is an invalid block
-									SendConsole.warning("Warplink '"
-											+ warp.getName() + "' @ " + x + ","
-											+ y + "," + z + " is missing!");
-								}
-							} else {
-								// Warp does not exists anymore
-								SendConsole.warning("Warplink @ " + x + ","
-										+ y + "," + z + " has an invalid warp!");
-								/* Debugging Information */
-								if (Configuration.debug) {
-									SendConsole.info("action: load warplinks from database");
-									SendConsole.info("result: Warplink has invalid warp.");
-									SendConsole.info("warpid: " + warpid);
-								}
-							}
+							warp.linkWarpCache(block, id);
 						} catch (Exception ex) {
-							// Warp can not be linked
+							// Warp is an invalid block
+							SendConsole.warning("Warplink '" + warp.getName()
+									+ "' @ " + x + "," + y + "," + z
+									+ " is missing!");
+						}
+					} else {
+						// Warp does not exists anymore
+						SendConsole.warning("Warplink @ " + x + "," + y + ","
+								+ z + " has an invalid warp!");
+						/* Debugging Information */
+						if (Configuration.debug) {
+							SendConsole
+									.info("action: load warplinks from database");
+							SendConsole
+									.info("result: Warplink has invalid warp.");
+							SendConsole.info("warpid: " + warpid);
 						}
 					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+				} catch (Exception ex) {
+					// Warp can not be linked
 				}
 			}
-		});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

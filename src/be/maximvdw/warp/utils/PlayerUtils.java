@@ -11,7 +11,7 @@ public class PlayerUtils {
 	public static Player getPlayerByUUID(UUID id) {
 	    for (World w : Bukkit.getServer().getWorlds()) {
 	        for (Entity e : w.getEntities()) {
-	            if (e.getUniqueId() == id) {
+	            if (e.getUniqueId().compareTo(id) == 0) {
 	                if (e instanceof Player){
 	                	return (Player)e;
 	                }
